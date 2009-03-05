@@ -83,7 +83,17 @@
     border-bottom-right-radius: 4px;
   }
   
-  #jModal_content { border-top: 1px solid #F9F9F9; }
+  #jModal_content {
+    border-top: 1px solid #F9F9F9;
+  }
+  
+  #jModal_close {
+    border: none;
+  }
+  
+  #jModal_caption {
+    font-size: 16px;
+  }
 
   #jModal_header {
     background-color: #DDD;
