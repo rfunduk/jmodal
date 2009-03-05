@@ -44,7 +44,7 @@
 #jModal_close {
   display: block;
   position: absolute;
-  right: 5px; top: 6px;
+  right: 8px; top: 8px;
   padding: 2px 3px;
   font-weight: bold;
   text-decoration: none;
@@ -56,14 +56,14 @@
 
 #jModal_loading {
   padding: 1.5em;
-  margin-top: 15px;
+  margin-top: 20px;
   text-indent: -10000px;
   background: transparent url(spinner.gif) 50% 0 no-repeat;
 }
 
 /* Color scheme */
 #jModal_modal {
-  background-color: #EFEFEF;
+  background-color: transparent;
   color: #000;
   
   -webkit-box-shadow: 0 0 64px #000; 
@@ -92,10 +92,3 @@
     #jModal_caption { color: #000 }
     #jModal_close { color: #777 }
     #jModal_close:hover { color: #000 }
-
-
-/* Alert message */
-.MB_alert {
-  margin: 10px 0;
-  text-align: center;
-}

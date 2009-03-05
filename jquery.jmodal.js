@@ -106,7 +106,12 @@
           url: url,
           method: 'get',
           success: function( response ) {
-            utils.content.set( response );
+            if( utils.debug ) {
+              setTimeout( function() { utils.content.set( response ); }, 3000 );
+            }
+            else {
+              utils.content.set( response );
+            }
           },
           failure: function() {
             utils.modal.close();
@@ -131,8 +136,13 @@
         var utils = $.fn.jModal.utils;
         if( !utils.active ) { return; }
         utils.active = false;
-        utils.elements.modal.slideUp( utils.options.modalHideDuration,
-                                      after );
+        utils.elements.modal.slideUp(
+          utils.options.modalHideDuration,
+          function() {
+            after();
+            utils.elements.content.html( utils.elements.loading );
+          }
+        );
       },
       resize: function( width, height ) {
         var utils = $.fn.jModal.utils;
