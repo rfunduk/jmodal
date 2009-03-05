@@ -19,14 +19,15 @@
     return wrapper.each( function() {
       $(this).click( function() {
         utils.modal.show();
-        if( typeof( content ) == 'string' ) { utils.content.load( content ); }
-        else {                                utils.content.set( content.html() ); }
+        if( typeof( content ) == 'function' ) { content = content(); }
+        if( typeof( content ) == 'string' )   { utils.content.load( content ); }
+        else                                  { utils.content.set( content.html() ); }
       } );
     } );
   };
 
   $.fn.jModal.utils = {
-    debug: true,
+    debug: false,
     active: false,
     log: function( msg ) { if( this.debug ) { console.log( msg ); } },
     initialized: false,
