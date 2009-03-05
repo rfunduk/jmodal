@@ -11,13 +11,25 @@
     <script type="text/javascript" src="jquery.jmodal.js"></script>
     <script type="text/javascript">
       $(document).ready( function() {
-        $('.make_a_modal').jModal();
+        $('.make_a_modal').jModal( $('#modal_content') );
       } );
     </script>
   </head>
   <body>
     <h3>test</h3>
     <p>test</p>
-    <a href="#" class="make_a_modal" title="zomfg">make a modal!</a>
+    <a href="#" class="make_a_modal">make a modal!</a>
+    <div id="modal_content" style="display:none;">
+      <h3>Some Example Content</h3>
+      <ul>
+        <li>it might</li>
+        <li>look like</li>
+        <li>this</li>
+      </ul>
+      <p>with a paragraph</p>
+      <code>
+        and_some_code();
+      </code>
+    </div>
   </body>
 </html>

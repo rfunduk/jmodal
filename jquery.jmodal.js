@@ -10,15 +10,28 @@
  */
  
 ( function( $ ) {
-  $.fn.jModal = function( opts ) {
+  $.fn.jModal = function( content_location, opts ) {
     var wrapper = this;
-    var utils = $.fn.jModal.utils;
+    var utils =   $.fn.jModal.utils;
     var options = $.extend( utils.options, opts );
+    var content = "";
     utils.init();
-
+    
+    switch( typeof( content_location ) ) {
+      case 'string':
+        content = content_location;
+        break;
+      case 'object':
+        content = content_location.html();
+        break;
+      case 'function':
+        content = content_location();
+        break;
+    }
+    
     return wrapper.each( function() {
       $(this).click( function() {
-        utils.content.set( "<h3>" + $(this).attr('title') + "</h3>" );
+        utils.content.set( content );
         utils.overlay.in();
         utils.modal.show();
       } );
@@ -30,8 +43,8 @@
     active: false,
     log: function( msg ) { if( this.debug ) { console.log( msg ); } },
     initialized: false,
-    neededElements: [ 'modal', 'frame', 'header', 'close',
-                      'caption', 'loading', 'content', 'overlay' ],
+    neededElements: [ 'modal', 'frame', 'header', 'caption',
+                      'loading', 'content', 'overlay' ],
     elements: {},
     init: function() {
       var utils = this;
@@ -52,17 +65,37 @@
         utils.elements[element] = $('<div id="' + eid + '"/>');
       } );
       
-      // set some styles and such up
-      utils.elements.overlay.css( { display: 'none', opacity: 0, zIndex: 9995 } );
-      utils.elements.modal.css( { display: 'none', zIndex: 9996 } );
+      var es = utils.elements;
       
+      // create close element seperately, it's an anchor, not a div
+      var close_id = typeof( utils.options.ids.close ) == 'undefined' ?
+                       "jModal_close" :
+                       utils.options.ids.close;
+      es.close = $('<a href="#" id="' + close_id + '">' + utils.options.closeValue + '</a>');
+      es.close.click( utils.modal.close );
+      
+      // set some styles and such up
+      es.overlay.css( { display: 'none', opacity: 0, zIndex: 9995 } );
+      es.modal.css( { display: 'none', zIndex: 9996 } );
+            
       // insert them into the dom
-      utils.elements.modal.append( utils.elements.content );
+      if( utils.options.showHeader ) {
+        es.caption.html( utils.options.title );
+        es.header
+          .append( es.close )
+          .append( es.caption );
+        es.frame.append( es.header );
+      }
+      
+      es.loading.append( utils.options.loadingString );
+      es.content.append( es.loading );
+      es.frame.append( es.content );
+      
+      es.modal.append( utils.elements.frame );
       
       $('body')
         .append( utils.elements.overlay )
         .append( utils.elements.modal );
-      
       
       // bind some listeners on the elements
       if( utils.options.overlayClose ) { utils.elements.overlay.click( utils.overlay.out ); }
@@ -89,10 +122,14 @@
         utils.elements.modal.slideDown( utils.options.modalShowDuration );
         utils.modal.autoPosition();
       },
-      hide: function() {
+      close: function() {
+        $.fn.jModal.utils.overlay.out();
+      },
+      hide: function( after ) {
         var utils = $.fn.jModal.utils;
         if( !utils.active ) { return; }
-        utils.elements.modal.slideUp( utils.options.modalHideDuration );
+        utils.elements.modal.slideUp( utils.options.modalHideDuration,
+                                      after );
       },
       autoPosition: function() {
         var utils = $.fn.jModal.utils;
@@ -102,33 +139,40 @@
                      document.body.scrollTop;
         var left = ( utils.elements.overlay.width() - utils.elements.modal.width() ) / 2;
         
-        utils.elements.modal.css( { top: top + 'px', left: left + 'px' } );
+        utils.elements.modal.css( { top:  top + 'px',
+                                    left: left + 'px' } );
       }
     },
     overlay: {
       in: function() {
-        $.fn.jModal.utils.log( '** bringing in overlay' );
-        $.fn.jModal.utils.elements.overlay.show().animate( {
-          opacity: $.fn.jModal.utils.options.overlayOpacity,
-        }, $.fn.jModal.utils.options.overlayFadeDuration );
+        var utils = $.fn.jModal.utils;
+        utils.log( '** showing overlay' );
+        utils.elements.overlay.show().animate( {
+          opacity: utils.options.overlayOpacity,
+        }, utils.options.overlayFadeDuration );
       },
       out: function() {
         var utils = $.fn.jModal.utils;
-        utils.modal.hide();
-        utils.elements.overlay.animate( { opacity: 0.0 },
-        utils.options.overlayFadeDuration,
-        function() { utils.elements.overlay.hide(); } )
+        utils.log( '** hiding overlay' );
+        utils.modal.hide( function() {
+          utils.elements.overlay.animate(
+            { opacity: 0.0 },
+            utils.options.overlayFadeDuration,
+            function() { utils.elements.overlay.hide(); }
+          );
+        } );
       }
     },
     options: {
       title:               'jModal Window',
+      showHeader:          true,
       overlayClose:        true,
       width:               500,
       height:              100,
       overlayOpacity:      0.65,
       overlayFadeDuration: 250,
       modalShowDuration:   500,
-      modalHideDuration:   500,
+      modalHideDuration:   250,
       modalResizeDuration: 250,
       animate:             true,
       loadingString:       'Please wait. Loading...',

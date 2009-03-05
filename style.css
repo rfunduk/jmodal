@@ -28,14 +28,14 @@
 
 #jModal_content {
   position: relative;
-  padding: 6px .75em;
+  padding: 6px 0.75em;
   overflow: auto;
 }
 
 #jModal_caption {
   font: bold 100% "Lucida Grande", Arial, sans-serif;
   text-shadow: #FFF 0 1px 0;
-  padding: .5em 2em .5em .75em;
+  padding: 0.5em 2em 0.5em 0.75em;
   margin: 0;
   text-align: left;
 }
@@ -43,7 +43,7 @@
 #jModal_close {
   display: block;
   position: absolute;
-  right: 5px; top: 4px;
+  right: 5px; top: 6px;
   padding: 2px 3px;
   font-weight: bold;
   text-decoration: none;
