@@ -10,28 +10,16 @@
  */
  
 ( function( $ ) {
-  $.fn.jModal = function( content_location, opts ) {
+  $.fn.jModal = function( content, opts ) {
     var wrapper = this;
     var utils =   $.fn.jModal.utils;
     var options = $.extend( utils.options, opts );
-    var content = "";
     utils.init();
-    
-    switch( typeof( content_location ) ) {
-      case 'string':
-        content = content_location;
-        break;
-      case 'object':
-        content = content_location.html();
-        break;
-      case 'function':
-        content = content_location();
-        break;
-    }
     
     return wrapper.each( function() {
       $(this).click( function() {
-        utils.content.set( content );
+        if( typeof( content ) == 'string' ) { utils.content.load( content ); }
+        else {                                utils.content.set( content.html() ); }
         utils.overlay.in();
         utils.modal.show();
       } );
@@ -44,7 +32,7 @@
     log: function( msg ) { if( this.debug ) { console.log( msg ); } },
     initialized: false,
     neededElements: [ 'modal', 'frame', 'header', 'caption',
-                      'loading', 'content', 'overlay' ],
+                      'loading', 'content', 'overlay', '__staging' ],
     elements: {},
     init: function() {
       var utils = this;
@@ -77,6 +65,7 @@
       // set some styles and such up
       es.overlay.css( { display: 'none', opacity: 0, zIndex: 9995 } );
       es.modal.css( { display: 'none', zIndex: 9996 } );
+      es.__staging.css( { display: 'none', zIndex: 0 } );
             
       // insert them into the dom
       if( utils.options.showHeader ) {
@@ -95,7 +84,8 @@
       
       $('body')
         .append( utils.elements.overlay )
-        .append( utils.elements.modal );
+        .append( utils.elements.modal )
+        .append( utils.elements.__staging );
       
       // bind some listeners on the elements
       if( utils.options.overlayClose ) { utils.elements.overlay.click( utils.overlay.out ); }
@@ -109,10 +99,24 @@
     content: {
       set: function( content ) {
         var utils = $.fn.jModal.utils;
-        utils.elements.content.html( content );
+        utils.elements.__staging.html( content );
+        var width = utils.elements.__staging.width(),
+            height = utils.elements.__staging.height();
+        utils.modal.resize( width, height );
+        setTimeout( function() { utils.elements.content.html( content ); },
+                    utils.options.modalResizeDuration );
       },
       load: function( url ) {
-        
+        $.ajax( {
+          url: url,
+          method: 'get',
+          success: function( response ) {
+            $.fn.jModal.utils.content.set( response );
+          },
+          failure: function() {
+            $.fn.jModal.utils.modal.close();
+          }
+        } );
       }
     },
     modal: {
@@ -130,6 +134,19 @@
         if( !utils.active ) { return; }
         utils.elements.modal.slideUp( utils.options.modalHideDuration,
                                       after );
+      },
+      resize: function( width, height ) {
+        var utils = $.fn.jModal.utils;
+        var modal = utils.elements.modal;
+        if( utils.options.showHeader ) {
+          height += utils.elements.header.height();
+        }
+        
+        utils.log( "resizing to " + width + "x" + height );
+        modal.animate( {
+          width: width + 'px',
+          height: height + 'px'
+        }, utils.options.modalResizeDuration );
       },
       autoPosition: function() {
         var utils = $.fn.jModal.utils;

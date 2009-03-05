@@ -28,7 +28,8 @@
 
 #jModal_content {
   position: relative;
-  padding: 6px 0.75em;
+  padding: 10px;
+  padding-top: 0px;
   overflow: auto;
 }
 
@@ -55,6 +56,7 @@
 
 #jModal_loading {
   padding: 1.5em;
+  margin-top: 15px;
   text-indent: -10000px;
   background: transparent url(spinner.gif) 50% 0 no-repeat;
 }
