@@ -18,10 +18,9 @@
     
     return wrapper.each( function() {
       $(this).click( function() {
+        utils.modal.show();
         if( typeof( content ) == 'string' ) { utils.content.load( content ); }
         else {                                utils.content.set( content.html() ); }
-        utils.overlay.in();
-        utils.modal.show();
       } );
     } );
   };
@@ -32,7 +31,7 @@
     log: function( msg ) { if( this.debug ) { console.log( msg ); } },
     initialized: false,
     neededElements: [ 'modal', 'frame', 'header', 'caption',
-                      'loading', 'content', 'overlay', '__staging' ],
+                      'loading', 'content', 'overlay' ],
     elements: {},
     init: function() {
       var utils = this;
@@ -64,8 +63,7 @@
       
       // set some styles and such up
       es.overlay.css( { display: 'none', opacity: 0, zIndex: 9995 } );
-      es.modal.css( { display: 'none', zIndex: 9996 } );
-      es.__staging.css( { display: 'none', zIndex: 0 } );
+      es.modal.css( { display: 'none', width: utils.options.width, zIndex: 9996 } );
             
       // insert them into the dom
       if( utils.options.showHeader ) {
@@ -84,11 +82,10 @@
       
       $('body')
         .append( utils.elements.overlay )
-        .append( utils.elements.modal )
-        .append( utils.elements.__staging );
+        .append( utils.elements.modal );
       
       // bind some listeners on the elements
-      if( utils.options.overlayClose ) { utils.elements.overlay.click( utils.overlay.out ); }
+      if( utils.options.overlayClose ) { utils.elements.overlay.click( utils.modal.close ); }
       $(window).bind( 'resize', function() {
         utils.modal.autoPosition();
       } );
@@ -99,22 +96,20 @@
     content: {
       set: function( content ) {
         var utils = $.fn.jModal.utils;
-        utils.elements.__staging.html( content );
-        var width = utils.elements.__staging.width(),
-            height = utils.elements.__staging.height();
-        utils.modal.resize( width, height );
-        setTimeout( function() { utils.elements.content.html( content ); },
-                    utils.options.modalResizeDuration );
+        utils.elements.content.html( content );
+        utils.modal.autoPosition();
       },
       load: function( url ) {
+        var utils = $.fn.jModal.utils;
+        utils.log( "making request to '" + url + "'" );
         $.ajax( {
           url: url,
           method: 'get',
           success: function( response ) {
-            $.fn.jModal.utils.content.set( response );
+            utils.content.set( response );
           },
           failure: function() {
-            $.fn.jModal.utils.modal.close();
+            utils.modal.close();
           }
         } );
       }
@@ -123,15 +118,19 @@
       show: function() {
         var utils = $.fn.jModal.utils;
         utils.active = true;
-        utils.elements.modal.slideDown( utils.options.modalShowDuration );
-        utils.modal.autoPosition();
+        utils.overlay.in( function() {
+          utils.elements.modal.slideDown( utils.options.modalShowDuration );
+          utils.modal.autoPosition();
+        } );
       },
       close: function() {
-        $.fn.jModal.utils.overlay.out();
+        var utils = $.fn.jModal.utils;
+        utils.overlay.out();
       },
       hide: function( after ) {
         var utils = $.fn.jModal.utils;
         if( !utils.active ) { return; }
+        utils.active = false;
         utils.elements.modal.slideUp( utils.options.modalHideDuration,
                                       after );
       },
@@ -161,12 +160,14 @@
       }
     },
     overlay: {
-      in: function() {
+      in: function( after ) {
         var utils = $.fn.jModal.utils;
         utils.log( '** showing overlay' );
-        utils.elements.overlay.show().animate( {
-          opacity: utils.options.overlayOpacity,
-        }, utils.options.overlayFadeDuration );
+        utils.elements.overlay.show().animate(
+          { opacity: utils.options.overlayOpacity },
+          utils.options.overlayFadeDuration,
+          after
+        );
       },
       out: function() {
         var utils = $.fn.jModal.utils;
