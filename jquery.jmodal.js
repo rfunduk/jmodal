@@ -22,6 +22,7 @@
         if( typeof( content ) == 'function' ) { content = content(); }
         if( typeof( content ) == 'string' )   { utils.content.load( content ); }
         else                                  { utils.content.set( content.html() ); }
+        return false;
       } );
     } );
   };
@@ -63,8 +64,8 @@
       es.close.click( utils.modal.close );
       
       // set some styles and such up
-      es.overlay.css( { display: 'none', opacity: 0, zIndex: 9995 } );
-      es.modal.css( { display: 'none', width: utils.options.width, zIndex: 9996 } );
+      es.overlay.css( { display: 'none', opacity: 0, zIndex: 99995 } );
+      es.modal.css( { display: 'none', width: utils.options.width, zIndex: 99996 } );
             
       // insert them into the dom
       if( utils.options.showHeader ) {
@@ -132,6 +133,7 @@
       close: function() {
         var utils = $.fn.jModal.utils;
         utils.overlay.out();
+        return false;
       },
       hide: function( after ) {
         var utils = $.fn.jModal.utils;
@@ -161,12 +163,10 @@
       autoPosition: function() {
         var utils = $.fn.jModal.utils;
         if( !utils.active ) { return; }
-        var top = ( document.documentElement && document.documentElement.scrollTop ) ?
-                     document.documentElement.scrollTop :
-                     document.body.scrollTop;
+        //var top = ( document.documentElement && document.documentElement.scrollTop ) ? document.documentElement.scrollTop : document.body.scrollTop;
         var left = ( utils.elements.overlay.width() - utils.elements.modal.width() ) / 2;
         
-        utils.elements.modal.css( { top:  top + 'px',
+        utils.elements.modal.css( { top:  '0px',
                                     left: left + 'px' } );
       }
     },
