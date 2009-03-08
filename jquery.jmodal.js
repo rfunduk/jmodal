@@ -13,11 +13,16 @@
   $.fn.jModal = function( content, opts ) {
     var wrapper = this;
     var utils =   $.fn.jModal.utils;
+    var title = opts.title || null;
+    var frameColor = opts.frameColor || null;
+    delete opts.title; delete opts.frameColor;
     var options = $.extend( utils.options, opts );
     utils.init();
     
     return wrapper.each( function() {
       $(this).click( function() {
+        utils.modal.useTitle( title );
+        utils.modal.useFrameColor( frameColor );
         utils.modal.show();
         if( typeof( content ) == 'function' ) { content = content(); }
         if( typeof( content ) == 'string' )   { utils.content.load( content ); }
@@ -147,6 +152,16 @@
           }
         );
       },
+      useTitle: function( title ) {
+        $.fn.jModal.utils.elements.caption.html( title );
+      },
+      useFrameColor: function( color ) {
+        var utils = $.fn.jModal.utils;
+        if( !color ) {
+          color = utils.options.frameColor;
+        }
+        utils.elements.frame.css( 'background-color', color );
+      },
       resize: function( width, height ) {
         var utils = $.fn.jModal.utils;
         var modal = utils.elements.modal;
@@ -204,6 +219,7 @@
       modalHideDuration:   250,
       modalResizeDuration: 250,
       animate:             true,
+      frameColor:          '#EFEFEF',
       loadingString:       'Please wait. Loading...',
       closeTitle:          'Close window',
       closeValue:          "&times;",
