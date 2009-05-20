@@ -130,14 +130,14 @@
       show: function() {
         var utils = $.fn.jModal.utils;
         utils.active = true;
-        utils.overlay.in( function() {
+        utils.overlay['in']( function() {
           utils.elements.modal.slideDown( utils.options.modalShowDuration );
           utils.modal.autoPosition();
         } );
       },
       close: function() {
         var utils = $.fn.jModal.utils;
-        utils.overlay.out();
+        utils.overlay['out']();
         return false;
       },
       hide: function( after ) {
@@ -186,7 +186,7 @@
       }
     },
     overlay: {
-      in: function( after ) {
+      'in': function( after ) {
         var utils = $.fn.jModal.utils;
         utils.log( '** showing overlay' );
         utils.elements.overlay.show().animate(
@@ -195,7 +195,7 @@
           after
         );
       },
-      out: function() {
+      'out': function() {
         var utils = $.fn.jModal.utils;
         utils.log( '** hiding overlay' );
         utils.modal.hide( function() {
